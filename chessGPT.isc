@@ -1,0 +1,8 @@
+isc_project_id = "1f0fa982-05fb-4ef4-8473-458822868f4d"
+experiment_name = "aurelianGTP"
+gpu_type = "24GB VRAM GPU"
+gpus = 12
+output_path = "~/outputs/aurelianGTP"
+dataset_id = "a6ebbed3-c0ec-49f9-8759-f17bb28d5376"
+compute_mode = "cycle"
+command = "source ~/.chess/bin/activate && cd ~/chess-hackathon-4/ && torchrun --nnodes=$NNODES --nproc-per-node=$N_PROC --master_addr=$MASTER_ADDR --master_port=$MASTER_PORT --node_rank=$RANK train_chessGPT.py --bs=32 --grad-accum=8 --lr=0.001"
