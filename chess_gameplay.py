@@ -79,14 +79,20 @@ class Agent:
     def __init__(self, model=None, p=0.3, k=3):
         self.model, self.p, self.k = model, p, k
 
-        if self.model:
+        if self.model is not None and self.model != 'stockfish':
             assert isinstance(model, nn.Module), "ERROR: model must be a torch nn.Module"
             self.model.eval()
+        elif self.model == 'stockfish':
+            self.engine = SimpleEngine.popen_uci(STOCKFISH_PATH)
 
-    def select_move(self, pgn, legal_moves):
+    def select_move(self, pgn, legal_moves, board=None):
         # If there is no model passed, then just chose randomly.
         if self.model is None:
             return choice(legal_moves)
+        elif self.model == 'stockfish':
+            # Analyze the current board position
+            result = self.engine.play(board, Limit(time=1.0, depth=20))
+            return result.move
 
         scores = []
         with torch.no_grad():
@@ -162,7 +168,7 @@ def play_game(agents, teams, max_moves=float('inf'), min_seconds_per_move=2, ver
 
         # agent selects move
         pgn = sans_to_pgn(move_sans)
-        selected_move_san = agents[turn].select_move(pgn, legal_move_sans)
+        selected_move_san = agents[turn].select_move(pgn, legal_move_sans, board)
         selected_move = legal_moves[legal_move_sans.index(selected_move_san)]
         move_sans.append(selected_move_san)
 
